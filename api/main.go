@@ -6,17 +6,31 @@ import (
 	"net/http"
 )
 
-func main() {
-	// Registramos la ruta
-	http.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
-		// Este mensaje solo saldrá en la consola cuando recibas una petición HTTP
-		fmt.Println("Petición recibida en /api/hello")
-		fmt.Fprintln(w, "Hello, World!")
-	})
+func logConsole() {
+	fmt.Println("Petición recibida en /api/hello v1")
+}
 
-	// Mensaje para confirmar en consola que el servidor arrancó
+func sendMessage(w http.ResponseWriter) {
+	fmt.Fprintln(w, "Hello, World!!!!")
+}
+
+func registerRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
+		logConsole()
+		sendMessage(w)
+	})
+}
+
+func main() {
+	mux := http.NewServeMux()
+	registerRoutes(mux)
+
 	fmt.Println("Servidor escuchando en http://localhost:8080")
 
-	// ListenAndServe bloquea la ejecución aquí. Si falla, Log.Fatal mostrará el error.
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: mux,
+	}
+
+	log.Fatal(server.ListenAndServe())
 }
